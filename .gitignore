@@ -1,0 +1,6 @@
+de_env
+airflow.env
+*.conf
+logs
+.idea
+__pycache__
