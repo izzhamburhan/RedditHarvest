@@ -2,6 +2,8 @@ from praw import Reddit
 import praw
 import sys
 
+from utils.constants import POST_FIELDS
+
 def connect_reddit(client_id, client_secret, user_agent) -> Reddit:
     try:
         reddit = praw.Reddit(
@@ -22,5 +24,10 @@ def extract_posts(reddit_instance: Reddit, subreddit:str, time_filter:str, limit
     
     posts_list = []
 
-    print(posts)
-    # for post in posts:
+
+    for post in posts:
+        post_dict = vars(post)
+        post = {key: post_dict[key] for key in POST_FIELDS}
+        posts_list.append(post)
+    
+    return posts_list
