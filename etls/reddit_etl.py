@@ -16,7 +16,7 @@ def connect_reddit(client_id, client_secret, user_agent) -> Reddit:
     except Exception as e:
         print(f"Error connecting to Reddit: {e}")
         return None
-        sys.exit(1)
+        # sys.exit(1)
 
 def extract_posts(reddit_instance: Reddit, subreddit:str, time_filter:str, limit:None):
     subreddit = reddit_instance.subreddit(subreddit)
