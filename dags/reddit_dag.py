@@ -24,6 +24,8 @@ dag = DAG(
     tags=['reddit', 'etl', 'pipeline'],
     )
 
+
+
 #extraction from reddit
 extract = PythonOperator(
     task_id='extract_from_reddit',

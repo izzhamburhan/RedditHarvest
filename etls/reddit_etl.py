@@ -1,6 +1,8 @@
+import numpy as np
 from praw import Reddit
 import praw
 import sys
+import pandas as pd
 
 from utils.constants import POST_FIELDS
 
@@ -27,7 +29,19 @@ def extract_posts(reddit_instance: Reddit, subreddit:str, time_filter:str, limit
 
     for post in posts:
         post_dict = vars(post)
+        # print(post_dict)
         post = {key: post_dict[key] for key in POST_FIELDS}
         posts_list.append(post)
     
     return posts_list
+
+
+def transform_data(post_df : pd.DataFrame):
+    post_df['created_utc'] = pd.to_datetime(post_df['created_utc'], unit='s')
+    post_df['over_18'] = np.where((post_df['over_18'] == True), True, False)
+    post_df['author'] = post_df['author'].astype(str)
+    return post_df
+
+def sload_data_to_csv(data: pd.DataFrame, path: str):
+    data.to_csv(path, index=False)
+    print(f"Data loaded successfully to {path}")
