@@ -20,28 +20,36 @@ def connect_reddit(client_id, client_secret, user_agent) -> Reddit:
         return None
         sys.exit(1)
 
-def extract_posts(reddit_instance: Reddit, subreddit:str, time_filter:str, limit:None):
+def extract_posts(reddit_instance: Reddit, subreddit: str, time_filter: str, limit: None):
     subreddit = reddit_instance.subreddit(subreddit)
     posts = subreddit.top(time_filter=time_filter, limit=limit)
     
     posts_list = []
-
-
+    
     for post in posts:
-        post_dict = vars(post)
-        # print(post_dict)
-        post = {key: post_dict[key] for key in POST_FIELDS}
-        posts_list.append(post)
+        post_data = {field: getattr(post, field) for field in POST_FIELDS}
+        # Special handling for author since it needs to be converted to string
+        post_data['author'] = str(post_data['author'])
+        posts_list.append(post_data)
     
     return posts_list
 
 
-def transform_data(post_df : pd.DataFrame):
+def transform_data(post_df: pd.DataFrame):
+    # Validate dataframe has all required columns
+    missing_cols = set(POST_FIELDS) - set(post_df.columns)
+    if missing_cols:
+        raise ValueError(f"Missing columns: {missing_cols}")
+    
     post_df['created_utc'] = pd.to_datetime(post_df['created_utc'], unit='s')
-    post_df['over_18'] = np.where((post_df['over_18'] == True), True, False)
+    post_df['over_18'] = post_df['over_18'].astype(bool)
     post_df['author'] = post_df['author'].astype(str)
+    
+    # Ensure columns are in correct order
+    post_df = post_df[list(POST_FIELDS)]
+    
     return post_df
 
-def sload_data_to_csv(data: pd.DataFrame, path: str):
+def load_data_to_csv(data: pd.DataFrame, path: str):
     data.to_csv(path, index=False)
     print(f"Data loaded successfully to {path}")
